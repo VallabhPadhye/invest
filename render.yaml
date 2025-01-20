@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: ExpenseInvestmentTracker
+    env: node
+    region: ap-south-1 # Replace with your preferred region
+    buildCommand: "npm install"
+    startCommand: "node server.js"
+    envVars:
+      - key: NODE_ENV
+        value: production
+    staticPublishPath: public
