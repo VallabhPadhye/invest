@@ -58,18 +58,6 @@ document.getElementById('investmentForm').addEventListener('submit', function(e)
   e.target.reset();
 });
 
-// Add Income
-document.getElementById('incomeForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const amount = parseFloat(document.getElementById('incomeAmount').value);
-
-  income.push({ amount });
-  localStorage.setItem('income', JSON.stringify(income));
-
-  updateUI();
-  e.target.reset();
-});
-
 // Open Expense Modal
 const expenseModal = document.getElementById('expenseModal');
 const addExpenseBtn = document.getElementById('addExpenseBtn');
