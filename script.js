@@ -1,56 +1,79 @@
-const apiBase = 'http://localhost:3000';
+// Retrieve data from localStorage or initialize to empty arrays
+const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+const investments = JSON.parse(localStorage.getItem('investments')) || [];
+const income = JSON.parse(localStorage.getItem('income')) || [];
 
-async function fetchData() {
-  const response = await fetch(`${apiBase}/data`);
-  const data = await response.json();
+// Update the UI with the stored data
+function updateUI() {
+  // Update Expenses Table
+  const expensesTable = document.querySelector("#expensesTable tbody");
+  expensesTable.innerHTML = expenses.map(exp => 
+    `<tr><td>${exp.category}</td><td>${exp.amount}</td></tr>`
+  ).join('');
+
+  // Update Investments Table
+  const investmentsTable = document.querySelector("#investmentsTable tbody");
+  investmentsTable.innerHTML = investments.map(inv => 
+    `<tr><td>${inv.type}</td><td>${inv.amount}</td></tr>`
+  ).join('');
+
+  // Update Income Table
+  const incomeTable = document.querySelector("#incomeTable tbody");
+  incomeTable.innerHTML = income.map(inc => 
+    `<tr><td>${inc.amount}</td></tr>`
+  ).join('');
+
+  // Update Summary
+  const totalIncome = income.reduce((sum, inc) => sum + inc.amount, 0);
+  const totalExpenses = expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const totalInvestments = investments.reduce((sum, inv) => sum + inv.amount, 0);
+  const balance = totalIncome - totalExpenses;
 
   document.getElementById('summary').innerHTML = `
-    <p><strong>Salary:</strong> ${data.salary}</p>
-    <p><strong>Remaining:</strong> ${data.remaining}</p>
+    Total Income: ₹${totalIncome}<br>
+    Total Expenses: ₹${totalExpenses}<br>
+    Total Investments: ₹${totalInvestments}<br>
+    Balance: ₹${balance}
   `;
-
-  const expensesTable = document.querySelector('#expensesTable tbody');
-  expensesTable.innerHTML = data.expenses.map(e => `
-    <tr>
-      <td>${e.category}</td>
-      <td>${e.spend}</td>
-    </tr>
-  `).join('');
-
-  const investmentsTable = document.querySelector('#investmentsTable tbody');
-  investmentsTable.innerHTML = data.investments.map(i => `
-    <tr>
-      <td>${i.type}</td>
-      <td>${i.capital}</td>
-    </tr>
-  `).join('');
 }
 
-document.getElementById('expenseForm').addEventListener('submit', async (e) => {
+// Add Expense
+document.getElementById('expenseForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const category = document.getElementById('expenseCategory').value;
-  const spend = Number(document.getElementById('expenseAmount').value);
+  const amount = parseFloat(document.getElementById('expenseAmount').value);
 
-  await fetch(`${apiBase}/expenses`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ category, spend }),
-  });
-  fetchData();
+  expenses.push({ category, amount });
+  localStorage.setItem('expenses', JSON.stringify(expenses));
+
+  updateUI();
+  e.target.reset();
 });
 
-document.getElementById('investmentForm').addEventListener('submit', async (e) => {
+// Add Investment
+document.getElementById('investmentForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const type = document.getElementById('investmentType').value;
-  const capital = Number(document.getElementById('investmentAmount').value);
+  const amount = parseFloat(document.getElementById('investmentAmount').value);
 
-  await fetch(`${apiBase}/investments`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type, capital }),
-  });
-  fetchData();
+  investments.push({ type, amount });
+  localStorage.setItem('investments', JSON.stringify(investments));
+
+  updateUI();
+  e.target.reset();
 });
 
-fetchData();
-    
+// Add Income
+document.getElementById('incomeForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const amount = parseFloat(document.getElementById('incomeAmount').value);
+
+  income.push({ amount });
+  localStorage.setItem('income', JSON.stringify(income));
+
+  updateUI();
+  e.target.reset();
+});
+
+// Initial UI update
+updateUI();
